@@ -1,47 +1,92 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 function SignUp() {
+  const [formData, setFormData] = useState({});
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    e.preventDefault();
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+    const data = await res.json();
+    if (data.status === "fail") {
+      setError(data.message);
+      setLoading(false);
+      return;
+    }
+    setLoading(false);
+    setError(null);
+    navigate("/sign-in");
+  };
+
   return (
-    <div className="p-3 mx-auto max-w-lg shadow-lg">
-      <h1 className="text-3xl font-semibold text-center my-7">Sign Up</h1>
-      <form className="flex flex-col gap-5">
-        <input
-          type="text"
-          placeholder="jackDaniels"
-          className="border p-3 rounded-lg shadow-lg"
-          id="username"
-        />
-        <input
-          type="email"
-          placeholder="jd@email.com"
-          className="border p-3 rounded-lg shadow-lg"
-          id="username"
-        />
-        <input
-          type="password"
-          placeholder="password"
-          className="border p-3 rounded-lg shadow-lg"
-          id="password"
-        />
-        <input
-          type="password"
-          placeholder="confirm password"
-          className="border p-3 rounded-lg shadow-lg"
-          id="confirmPassword"
-        />
+    <div className="mt-[100px] p-10">
+      <div className="p-3 mx-auto max-w-lg shadow-lg bg-zinc-300">
+        <h1 className="font-serif text-3xl text-zinc-700 font-semibold text-center my-7">
+          Sign Up
+        </h1>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <input
+            type="text"
+            placeholder="jackDaniels"
+            className="border p-3 rounded-lg shadow-lg"
+            id="username"
+            onChange={handleChange}
+          />
+          <input
+            type="email"
+            placeholder="jd@email.com"
+            className="border p-3 rounded-lg shadow-lg"
+            id="email"
+            onChange={handleChange}
+          />
+          <input
+            type="password"
+            placeholder="password"
+            className="border p-3 rounded-lg shadow-lg"
+            id="password"
+            onChange={handleChange}
+          />
+          <input
+            type="password"
+            placeholder="confirm password"
+            className="border p-3 rounded-lg shadow-lg"
+            id="passwordConfirm"
+            onChange={handleChange}
+          />
 
-        <button className="bg-zinc-600 rounded-lg text-white p-4 shadow-lg uppercase font-bold hover:opacity-80 ease-in duration-300 disabled:opacity-80 disabled:text-zinc-300">
-          Submit
-        </button>
-      </form>
+          <button
+            disabled={loading}
+            className="bg-zinc-600 rounded-lg text-white p-4 shadow-lg uppercase font-bold hover:opacity-80 ease-in duration-300 disabled:opacity-80 disabled:text-zinc-300"
+          >
+            {loading ? "Loading..." : "Submit"}
+          </button>
+        </form>
 
-      <div className="flex items-center my-5 justify-between">
-        <p className="font-medium">Have an account?</p>
-        <Link to="/sign-in">
-          <span className="font-semibold cursor-pointer ease-in duration-100 hover:font-bold hover:underline text-sky-900">
-            Sign In
-          </span>
-        </Link>
+        <div className="flex items-center my-5 justify-between">
+          <p className="font-medium">Have an account?</p>
+          <Link to="/sign-in">
+            <span className="font-semibold cursor-pointer ease-in duration-100 hover:font-bold hover:underline text-sky-900">
+              Sign In
+            </span>
+          </Link>
+        </div>
+        {error && (
+          <p className="font-bold text-red-700 bg-red-200 rounded-m p-2">
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
