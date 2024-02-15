@@ -19,7 +19,7 @@ function Header() {
           />
           <FaSearch />
         </form>
-        <ul className="flex gap-6">
+        <ul className="flex gap-6 font-bold">
           <Link to="/">
             <li className="hover:cursor-pointer hidden sm:inline text-zinc-700 hover:underline">
               Home

@@ -2,9 +2,14 @@ import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
 
+import userRouter from "./routes/user.route.js";
+
 dotenv.config({ path: "./config.env" });
 
 const app = express();
+
+// create APIs
+app.use("/api/user", userRouter);
 
 // connect to database
 mongoose
@@ -14,7 +19,7 @@ mongoose
     console.log(error.message);
   });
 
-// start listening
+// start server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server start on port ${port}`);
