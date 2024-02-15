@@ -11,8 +11,16 @@ const app = express();
 app.use(express.json());
 
 // create APIs
-app.use("/api/user", userRouter);
+app.use("api/user", userRouter);
 app.use("/api/auth", authRouter);
+
+// error handler middleware
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+
+  return res.status(statusCode).json({ success: "fail", statusCode, message });
+});
 
 // connect to database
 mongoose
