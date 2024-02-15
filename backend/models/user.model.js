@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import validator from "mongoose-validator";
+import validator from "validator";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
@@ -7,22 +8,42 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Username must be specified."],
       unique: [true, "Username already exists. Select a unique username."],
-      validate: { validator: "isAlphanumeric" },
     },
     email: {
       type: String,
       required: [true, "Email is required."],
       unique: [true, "Account already exist with this email."],
-      validate: { validator: "isEmail" },
+      lowercase: true,
+      validate: [validator.isEmail, "Please provide valid email."],
     },
     password: {
       type: String,
       required: [true, "Password is required."],
     },
+    passwordConfirm: {
+      type: String,
+      required: [true, "Please confirm your password."],
+      validate: {
+        validator: function (el) {
+          return el === this.password;
+        },
+        message: "Please confirm your password.",
+      },
+    },
   },
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
+// save hashed password to the DB before saving the document
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  this.password = await bcrypt.hash(this.password, 10);
 
+  this.passwordConfirm = undefined;
+  next();
+});
+
+const User = mongoose.model("User", userSchema);
 export default User;

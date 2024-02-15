@@ -3,13 +3,16 @@ import express from "express";
 import mongoose from "mongoose";
 
 import userRouter from "./routes/user.route.js";
+import authRouter from "./routes/auth.router.js";
 
 dotenv.config({ path: "./config.env" });
 
 const app = express();
+app.use(express.json());
 
 // create APIs
 app.use("/api/user", userRouter);
+app.use("/api/auth", authRouter);
 
 // connect to database
 mongoose
