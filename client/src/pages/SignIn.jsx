@@ -8,6 +8,7 @@ import {
   signInSuccess,
   siginInStart,
 } from "../store/user/userSlice";
+import OAuth from "../components/OAuth";
 
 function SignIn() {
   const [formData, setFormData] = useState({});
@@ -33,6 +34,7 @@ function SignIn() {
       dispatch(signInFailure(data.message));
       return;
     }
+    console.log(data);
     dispatch(signInSuccess(data.data.user));
     navigate("/");
   };
@@ -70,6 +72,7 @@ function SignIn() {
           >
             {loading ? "Loading..." : "Sign In"}
           </button>
+          <OAuth />
         </form>
 
         <div className="flex items-center my-5 justify-between">

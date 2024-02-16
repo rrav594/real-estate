@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 
 import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.router.js";
@@ -9,6 +10,7 @@ dotenv.config({ path: "./config.env" });
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // create APIs
 app.use("api/user", userRouter);

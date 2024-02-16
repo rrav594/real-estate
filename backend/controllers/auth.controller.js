@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import generator from "generate-password";
 
 import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
@@ -60,4 +61,31 @@ function signToken(id) {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
+}
+
+export async function google(req, res, next) {
+  try {
+    const { email, name, photoURL } = req.body;
+    console.log({ email, name, photoURL });
+    const user = await User.findOne({ email });
+    if (user) {
+      createSendToken(user, 200, req, res);
+    } else {
+      const generatedPassword = generator.generate({
+        length: 8,
+        numbers: true,
+      });
+
+      const user = await User.create({
+        username: name.split(" ").join("").toLowerCase(),
+        email: email,
+        password: generatedPassword,
+        passwordConfirm: generatedPassword,
+        avatar: photoURL,
+      });
+      createSendToken(user, 200, req, res);
+    }
+  } catch (error) {
+    next(error);
+  }
 }

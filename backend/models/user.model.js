@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     username: {
       type: String,
       required: [true, "Username must be specified."],
-      unique: [true, "Username already exists. Select a unique username."],
+      // unique: [true, "Username already exists. Select a unique username."],
     },
     email: {
       type: String,
@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema(
         },
         message: "Please confirm your password.",
       },
+    },
+    avatar: {
+      type: String,
+      default:
+        "https://gravatar.com/avatar/d04a6521420f68da15e0a66b21d1eb63?s=200&d=robohash&r=x",
     },
   },
   { timestamps: true }

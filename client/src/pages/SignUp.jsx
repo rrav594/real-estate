@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaLongArrowAltRight } from "react-icons/fa";
+import OAuth from "../components/OAuth";
 
 function SignUp() {
   const [formData, setFormData] = useState({});
@@ -78,6 +79,7 @@ function SignUp() {
           >
             {loading ? "Loading..." : "Submit"}
           </button>
+          <OAuth />
         </form>
 
         <div className="flex items-center my-5 justify-between">
@@ -86,7 +88,7 @@ function SignUp() {
             <FaLongArrowAltRight />
           </p>
           <Link to="/sign-in">
-            <span className="font-semibold cursor-pointer ease-in duration-100 hover:font-bold hover:underline text-sky-900">
+            <span className="font-semibold cursor-pointer ease-in duration-100 hover:font-bold hover:underline text-blue-700 bg-blue-300">
               Sign In
             </span>
           </Link>
