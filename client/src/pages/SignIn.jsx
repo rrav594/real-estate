@@ -77,7 +77,7 @@ function SignIn() {
 
         <div className="flex items-center my-5 justify-between">
           <p className=" diaplay:block flex items-center justify-end gap-10 font-medium">
-            Don't Have an account?
+            Dont Have an account?
             <FaLongArrowAltRight />
           </p>
           <Link to="/sign-up">
