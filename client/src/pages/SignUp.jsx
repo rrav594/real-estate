@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { FaLongArrowAltRight } from "react-icons/fa";
 
 function SignUp() {
   const [formData, setFormData] = useState({});
@@ -39,14 +40,14 @@ function SignUp() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <input
             type="text"
-            placeholder="jackDaniels"
+            placeholder="your-name"
             className="border p-3 rounded-lg shadow-lg"
             id="username"
             onChange={handleChange}
           />
           <input
             type="email"
-            placeholder="jd@email.com"
+            placeholder="example@your-mail.com"
             className="border p-3 rounded-lg shadow-lg"
             id="email"
             onChange={handleChange}
@@ -75,7 +76,10 @@ function SignUp() {
         </form>
 
         <div className="flex items-center my-5 justify-between">
-          <p className="font-medium">Have an account?</p>
+          <p className=" diaplay:block flex items-center justify-end gap-10 font-medium">
+            Have an account?
+            <FaLongArrowAltRight />
+          </p>
           <Link to="/sign-in">
             <span className="font-semibold cursor-pointer ease-in duration-100 hover:font-bold hover:underline text-sky-900">
               Sign In
