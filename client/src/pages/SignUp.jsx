@@ -28,15 +28,20 @@ function SignUp() {
     }
     setLoading(false);
     setError(null);
-    navigate("/sign-in");
+    navigate("/");
   };
 
   return (
     <div className="mt-[100px] p-10">
       <div className="p-3 mx-auto max-w-lg shadow-lg bg-zinc-300">
-        <h1 className="font-serif text-3xl text-zinc-700 font-semibold text-center my-7">
-          Sign Up
-        </h1>
+        <div className="flex flex-col items-center">
+          <h1 className="font-serif text-3xl text-zinc-700 font-semibold text-center my-7">
+            Sign Up
+          </h1>
+          <p className="text-lg font-serif mb-7 text-stone-800">
+            Use your email to create account!
+          </p>
+        </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <input
             type="text"

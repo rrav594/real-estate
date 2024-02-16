@@ -13,7 +13,7 @@ export async function signup(req, res, next) {
       passwordConfirm,
     });
 
-    res.status(201).json({ message: "User created succesfully." });
+    createSendToken(newUser, 200, req, res);
   } catch (error) {
     next(error);
   }
