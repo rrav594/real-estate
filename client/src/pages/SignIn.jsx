@@ -2,11 +2,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaLongArrowAltRight } from "react-icons/fa";
 
+import { useSelector, useDispatch } from "react-redux";
+import {
+  signInFailure,
+  signInSuccess,
+  siginInStart,
+} from "../store/user/userSlice";
+
 function SignIn() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -14,20 +21,19 @@ function SignIn() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    dispatch(siginInStart());
     const res = await fetch("/api/auth/signin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     });
     const data = await res.json();
+    console.log(data);
     if (data.status === "fail") {
-      setError(data.message);
-      setLoading(false);
+      dispatch(signInFailure(data.message));
       return;
     }
-    setLoading(false);
-    setError(null);
+    dispatch(signInSuccess(data.data.user));
     navigate("/");
   };
 
