@@ -29,12 +29,11 @@ function SignIn() {
       body: JSON.stringify(formData),
     });
     const data = await res.json();
-    console.log(data);
+
     if (data.status === "fail") {
       dispatch(signInFailure(data.message));
       return;
     }
-    console.log(data);
     dispatch(signInSuccess(data.data.user));
     navigate("/");
   };

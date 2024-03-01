@@ -21,7 +21,7 @@ function OAuth() {
         body: JSON.stringify({ name: displayName, email, photoURL }),
       });
       const data = await res.json();
-      console.log(data);
+
       dispatch(signInSuccess(data.data.user));
       navigate("/");
     } catch (error) {

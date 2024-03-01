@@ -41,9 +41,9 @@ function createSendToken(user, statusCode, req, res) {
   const token = signToken(user.id);
 
   res.cookie("jwt", token, {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-    ),
+    // expires: new Date(
+    //   Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    // ),
     httpOnly: true,
   });
 
@@ -58,15 +58,19 @@ function createSendToken(user, statusCode, req, res) {
 }
 
 function signToken(id) {
-  return jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
+  return jwt.sign(
+    { id },
+    process.env.JWT_SECRET_KEY
+    // {
+    // expiresIn: process.env.JWT_EXPIRES_IN,
+    // }
+  );
 }
 
 export async function google(req, res, next) {
   try {
     const { email, name, photoURL } = req.body;
-    console.log({ email, name, photoURL });
+
     const user = await User.findOne({ email });
     if (user) {
       createSendToken(user, 200, req, res);

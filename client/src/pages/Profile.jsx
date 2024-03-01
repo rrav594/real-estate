@@ -1,5 +1,5 @@
 import react from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRef, useState, useEffect } from "react";
 import {
   getStorage,
@@ -9,6 +9,12 @@ import {
 } from "firebase/storage";
 import { app } from "../firebase.js";
 
+import {
+  updateUserStart,
+  updateUserFailure,
+  updateUserSuccess,
+} from "../store/user/userSlice.js";
+
 function Profile() {
   const { currentUser } = useSelector((state) => state.user);
   const fileRef = useRef(null);
@@ -16,18 +22,28 @@ function Profile() {
   // console.log(file);
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
-  console.log(filePerc);
   const [formData, setFormData] = useState({});
-  console.log(formData);
-  console.log(fileUploadError);
+  // console.log(formData);
+  // console.log(fileUploadError);
 
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (file) {
+      handleFileUpload(file);
+      // setFile(undefined);
+    }
+  }, [file]);
   function handleFileUpload(file) {
     const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name;
-    console.log(fileName);
+    const metadata = {
+      contentType: "image/jpeg",
+    };
+    // console.log(fileName);
     const storageRef = ref(storage, `avatar/${fileName}`);
     // console.log(storageRef);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
 
     uploadTask.on(
       "state_changed",
@@ -39,29 +55,49 @@ function Profile() {
       },
       (error) => {
         setFileUploadError(true);
-        console.log(error);
+        // console.log(error);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setFormData({ ...formData, avatar: downloadURL });
-          console.log(formData);
+          // console.log(formData);
         });
       }
     );
   }
 
-  useEffect(() => {
-    if (file) {
-      handleFileUpload(file);
+  function handleChange(e) {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+
+    // console.log(formData);
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    try {
+      dispatch(updateUserStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success == "fail") {
+        dispatch(updateUserFailure(data.message));
+      }
+      dispatch(updateUserSuccess(data));
+    } catch (error) {
+      dispatch(updateUserFailure(error.message));
     }
-  }, [file]);
+  }
 
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl text-stone-700 font-semibold text-center mt-10">
-        Hello, {currentUser.username.toUpperCase()}
+        Hello, {currentUser && currentUser.username}
       </h1>
       <form
+        onSubmit={handleSubmit}
         onChange={(e) => {
           setFile(e.target.files[0]);
         }}
@@ -90,22 +126,27 @@ function Profile() {
         </div>
 
         <input
+          defaultValue={currentUser.username}
           type="text"
           placeholder="username"
           className="border p-3 rounded-lg"
           id="username"
+          onChange={handleChange}
         />
         <input
+          defaultValue={currentUser.email}
           type="email"
           placeholder="email"
           className="border p-3 rounded-lg"
           id="email"
+          onChange={handleChange}
         />
         <input
           type="password"
           placeholder="password"
           className="border p-3 rounded-lg"
           id="password"
+          onChange={handleChange}
         />
         <button className="font-bold bg-zinc-700 text-orange-400 rounded-lg p-3 uppercase hover:opacity-80 disabled:opacity-50">
           Update

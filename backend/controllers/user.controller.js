@@ -2,8 +2,7 @@ import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export async function updateUserInfo(req, res, next) {
-  console.log(req.user);
-  if (req.user._id !== req.params.id)
+  if (req.user.id !== req.params.id)
     return next(
       errorHandler(401, "User not authenticated to update this account.")
     );
@@ -20,7 +19,8 @@ export async function updateUserInfo(req, res, next) {
       },
       { new: true }
     );
-    console.log(updatedUser);
+
+    res.status(200).json({ updatedUser });
   } catch (error) {
     next(error);
   }
