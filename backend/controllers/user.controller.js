@@ -21,7 +21,7 @@ export async function updateUserInfo(req, res, next) {
       { new: true }
     );
 
-    res.status(200).json({ updatedUser });
+    res.status(200).json({ status: "succeess", updatedUser });
   } catch (error) {
     next(error);
   }

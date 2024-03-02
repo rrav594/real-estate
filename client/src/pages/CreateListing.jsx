@@ -6,13 +6,33 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 function CreateListing() {
+  const { currentUser } = useSelector((state) => state.user);
+  //   console.log(currentUser);
+  const navigate = useNavigate();
   const [files, setFiles] = useState([]);
-  const [formData, setFormData] = useState({ imageUrls: [] });
+  const [formData, setFormData] = useState({
+    imageUrls: [],
+    name: "",
+    description: "",
+    address: "",
+    type: "rent",
+    bedrooms: 1,
+    bathrooms: 1,
+    regularPrice: 0,
+    discountPrice: 0,
+    parking: false,
+    offer: false,
+    furnished: false,
+  });
   console.log(formData);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   function handleImageSubmit(e) {
     e.preventDefault();
@@ -77,14 +97,72 @@ function CreateListing() {
     });
   }
 
+  function handleChange(e) {
+    e.preventDefault();
+    if (e.target.id === "sale" || e.target.id === "rent") {
+      setFormData({
+        ...formData,
+        type: e.target.id,
+      });
+    }
+    if (
+      e.target.id === "parking" ||
+      e.target.id == "furnished" ||
+      e.target.id === "offer"
+    ) {
+      setFormData({
+        ...formData,
+        [e.target.id]: e.target.checked,
+      });
+    }
+    if (
+      e.target.type === "number" ||
+      e.target.type === "text" ||
+      e.target.type === "textarea"
+    ) {
+      setFormData({ ...formData, [e.target.id]: e.target.value });
+    }
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    try {
+      if (formData.imageUrls.length < 1) {
+        return setError("You must upload atleast one image.");
+      }
+      if (+formData.regularPrice < +formData.discountPrice)
+        return setError("Discount price can not be higher then regular price.");
+      setLoading(true);
+      setError(false);
+      const res = await fetch("http://localhost:8000/api/listing/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, userRef: currentUser._id }),
+      });
+      const data = await res.json();
+      console.log(data);
+
+      if (data.status === "fail") {
+        setError(data.message);
+      }
+      setLoading(false);
+      navigate(`/listing/${data.listing._id}`);
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  }
+
   return (
     <main className="p-3 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">
         Property Details...
       </h1>
-      <form className="flex flex-col sm:flex-row gap-5">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-5">
         <div className="flex flex-col gap-4 flex-1 p-5">
           <input
+            onChange={handleChange}
+            value={formData.name}
             type="text"
             placeholder="Name"
             className="border p-3 rounded-lg"
@@ -94,6 +172,8 @@ function CreateListing() {
             required
           />
           <textarea
+            onChange={handleChange}
+            value={formData.description}
             placeholder="Description"
             className="border p-3 rounded-lg"
             id="description"
@@ -102,6 +182,8 @@ function CreateListing() {
             required
           />
           <input
+            onChange={handleChange}
+            value={formData.address}
             type="text"
             placeholder="Address"
             className="border p-3 rounded-lg"
@@ -112,29 +194,61 @@ function CreateListing() {
           />
           <div className="flex justify-between flex-wrap">
             <div className="flex gap-2">
-              <input type="checkbox" id="sale" className="w-5" />
+              <input
+                onChange={handleChange}
+                checked={formData.type === "sale"}
+                type="checkbox"
+                id="sale"
+                className="w-5"
+              />
               <span>Sell</span>
             </div>
             <div className="flex gap-2">
-              <input type="checkbox" id="rent" className="w-5" />
+              <input
+                onChange={handleChange}
+                checked={formData.type === "rent"}
+                type="checkbox"
+                id="rent"
+                className="w-5"
+              />
               <span>Rent</span>
             </div>
             <div className="flex gap-2">
-              <input type="checkbox" id="parking" className="w-5" />
+              <input
+                onChange={handleChange}
+                checked={formData.parking === true}
+                type="checkbox"
+                id="parking"
+                className="w-5"
+              />
               <span>Parking Spot</span>
             </div>
             <div className="flex gap-2">
-              <input type="checkbox" id="furnished" className="w-5" />
+              <input
+                onChange={handleChange}
+                checked={formData.furnished === true}
+                type="checkbox"
+                id="furnished"
+                className="w-5"
+              />
               <span>Furnished</span>
             </div>
             <div className="flex gap-2">
-              <input type="checkbox" id="offer" className="w-5" />
+              <input
+                onChange={handleChange}
+                checked={formData.offer === true}
+                type="checkbox"
+                id="offer"
+                className="w-5"
+              />
               <span>Offer</span>
             </div>
           </div>
           <div className="flex flex-wrap justify-between my-5">
             <div className="flex items-center gap-5 my-2">
               <input
+                onChange={handleChange}
+                value={formData.bedrooms}
                 className="p-3 border border-gray-300 rounded-lg"
                 type="number"
                 id="bedroom"
@@ -146,6 +260,8 @@ function CreateListing() {
             </div>
             <div className="flex items-center gap-5 my-2">
               <input
+                onChange={handleChange}
+                value={formData.bathrooms}
                 className="p-3 border border-gray-300 rounded-lg"
                 type="number"
                 id="bathroom"
@@ -157,10 +273,12 @@ function CreateListing() {
             </div>
             <div className="flex items-center gap-5 my-2">
               <input
+                onChange={handleChange}
+                value={formData.regularPrice}
                 className="p-3 border border-gray-300 rounded-lg"
                 type="number"
                 id="regularPrice"
-                min="1"
+                min="0"
                 max="10000"
                 required
               />
@@ -169,20 +287,24 @@ function CreateListing() {
                 <span className="text-xs text-red-700">(INR per month)</span>
               </div>
             </div>
-            <div className="flex items-center gap-5">
-              <input
-                className="p-3 border border-gray-300 rounded-lg"
-                type="number"
-                id="discountPrice"
-                min="1"
-                max="10000"
-                required
-              />
-              <div>
-                <p>Discounted Price</p>
-                <span className="text-xs text-red-700">(INR per month)</span>
+            {formData.offer && (
+              <div className="flex items-center gap-5">
+                <input
+                  onChange={handleChange}
+                  value={formData.discountPrice}
+                  className="p-3 border border-gray-300 rounded-lg"
+                  type="number"
+                  id="discountPrice"
+                  min="0"
+                  max="10000"
+                  required
+                />
+                <div>
+                  <p>Discounted Price</p>
+                  <span className="text-xs text-red-700">(INR per month)</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col flex-1 p-5">
@@ -234,9 +356,13 @@ function CreateListing() {
                 </div>
               );
             })}
-          <button className="mt-10 font-bold bg-zinc-700 text-white rounded-lg p-3 uppercase hover:opacity-80 disabled:opacity-50">
-            Create Listing
+          <button
+            disabled={loading || uploading}
+            className="mt-10 font-bold bg-zinc-700 text-white rounded-lg p-3 uppercase hover:opacity-80 disabled:opacity-50"
+          >
+            {loading ? "Creating your post...." : "Create Listing"}
           </button>
+          {error && <p className="text-red-700 text-xs">{error}</p>}
         </div>
       </form>
     </main>

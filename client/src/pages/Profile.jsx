@@ -80,14 +80,17 @@ function Profile() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    console.log(currentUser);
+    // console.log(currentUser);
     try {
       dispatch(updateUserStart());
-      const result = await fetch(`/api/user/update/${currentUser._id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const result = await fetch(
+        `http://localhost:8000/api/user/update/${currentUser._id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
       const data = await result.json();
 
       if (data.status == "fail") {
