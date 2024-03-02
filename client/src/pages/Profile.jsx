@@ -13,6 +13,9 @@ import {
   updateUserStart,
   updateUserFailure,
   updateUserSuccess,
+  deleteUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
 } from "../store/user/userSlice.js";
 
 function Profile() {
@@ -93,6 +96,23 @@ function Profile() {
     }
   }
 
+  async function handleDeleteUser() {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.status == "fail") {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
+    }
+  }
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl text-stone-700 font-semibold text-center mt-10">
@@ -158,7 +178,10 @@ function Profile() {
         </button>
       </form>
       <div className="mt-2 flex items-center justify-between">
-        <span className="text-rose-600 cursor-pointer font-bold">
+        <span
+          className="text-rose-600 cursor-pointer font-bold"
+          onClick={handleDeleteUser}
+        >
           Delete Account
         </span>
         <span className="text-sky-600 cursor-pointer font-bold">Sign Out</span>

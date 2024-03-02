@@ -26,3 +26,20 @@ export async function updateUserInfo(req, res, next) {
     next(error);
   }
 }
+
+export async function deleteUser(req, res, next) {
+  // console.log("Delete:", req.user, req.params);
+  if (req.user.id !== req.params.id) {
+    return next(errorHandler(401, "You can delete your own account..."));
+  }
+  try {
+    await User.findByIdAndDelete(req.params.id);
+
+    res
+      .clearCookie("jwt")
+      .status(200)
+      .json({ message: "User has been deleted..." });
+  } catch (error) {
+    next(error);
+  }
+}
