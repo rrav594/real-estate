@@ -1,4 +1,5 @@
 import react from "react";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useRef, useState, useEffect } from "react";
 import {
@@ -194,6 +195,13 @@ function Profile() {
         >
           {loading ? "Loading" : "Update"}
         </button>
+
+        <Link
+          to={"/create-listing"}
+          className="font-bold bg-green-700 text-center rounded-lg p-3 uppercase hover:opacity-80 disabled:opacity-50"
+        >
+          List your Property
+        </Link>
       </form>
       <div className="mt-2 flex items-center justify-between">
         <span
