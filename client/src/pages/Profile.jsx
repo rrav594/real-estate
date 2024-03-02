@@ -16,6 +16,9 @@ import {
   deleteUserFailure,
   deleteUserStart,
   deleteUserSuccess,
+  signOutUserStart,
+  signOutUserFailure,
+  signOutUserSuccess,
 } from "../store/user/userSlice.js";
 
 function Profile() {
@@ -103,6 +106,7 @@ function Profile() {
         method: "DELETE",
       });
       const data = await res.json();
+
       if (data.status == "fail") {
         dispatch(deleteUserFailure(data.message));
         return;
@@ -110,6 +114,20 @@ function Profile() {
       dispatch(deleteUserSuccess(data));
     } catch (error) {
       dispatch(deleteUserFailure(error.message));
+    }
+  }
+  async function handleSignOut() {
+    try {
+      dispatch(signOutUserStart());
+      const res = await fetch("/api/auth/signout");
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(signOutUserFailure(data.message));
+        return;
+      }
+      dispatch(signOutUserSuccess(data.message));
+    } catch (error) {
+      dispatch(signOutUserFailure(error.message));
     }
   }
 
@@ -184,7 +202,12 @@ function Profile() {
         >
           Delete Account
         </span>
-        <span className="text-sky-600 cursor-pointer font-bold">Sign Out</span>
+        <span
+          className="text-sky-600 cursor-pointer font-bold"
+          onClick={handleSignOut}
+        >
+          Sign Out
+        </span>
       </div>
 
       <p className="text-rose-600  mt-5">{error ? error : ""}</p>

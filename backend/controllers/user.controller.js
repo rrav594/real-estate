@@ -38,7 +38,7 @@ export async function deleteUser(req, res, next) {
     res
       .clearCookie("jwt")
       .status(200)
-      .json({ message: "User has been deleted..." });
+      .json({ status: "success", message: "User has been deleted..." });
   } catch (error) {
     next(error);
   }

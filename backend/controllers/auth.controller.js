@@ -93,3 +93,15 @@ export async function google(req, res, next) {
     next(error);
   }
 }
+
+export function signOut(req, res, next) {
+  try {
+    res.clearCookie("jwt");
+
+    res
+      .status(200)
+      .json({ status: "success", message: "User has been logged out..." });
+  } catch (error) {
+    next(error);
+  }
+}
