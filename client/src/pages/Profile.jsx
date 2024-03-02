@@ -16,15 +16,14 @@ import {
 } from "../store/user/userSlice.js";
 
 function Profile() {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const fileRef = useRef(null);
   const [file, setFile] = useState(undefined);
   // console.log(file);
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
-  const [formData, setFormData] = useState({});
-  // console.log(formData);
-  // console.log(fileUploadError);
+  const [formData, setFormData] = useState({ avatar: currentUser.photoURL });
+  const [updateSuccess, setUpdateSuccess] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -74,18 +73,21 @@ function Profile() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    console.log(currentUser);
     try {
       dispatch(updateUserStart());
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+      const result = await fetch(`/api/user/update/${currentUser._id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      const data = await res.json();
-      if (data.success == "fail") {
+      const data = await result.json();
+
+      if (data.status == "fail") {
         dispatch(updateUserFailure(data.message));
       }
       dispatch(updateUserSuccess(data));
+      setUpdateSuccess(true);
     } catch (error) {
       dispatch(updateUserFailure(error.message));
     }
@@ -96,14 +98,14 @@ function Profile() {
       <h1 className="text-3xl text-stone-700 font-semibold text-center mt-10">
         Hello, {currentUser && currentUser.username}
       </h1>
-      <form
-        onSubmit={handleSubmit}
-        onChange={(e) => {
-          setFile(e.target.files[0]);
-        }}
-        className="flex flex-col gap-5"
-      >
-        <input type="file" ref={fileRef} hidden accept="image/*" />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <input
+          type="file"
+          ref={fileRef}
+          hidden
+          accept="image/*"
+          onChange={(e) => setFile(e.target.files[0])}
+        />
         <img
           className="m-10 self-center rounded-full h-24 w-24 object-cover cursor-pointer"
           src={formData.avatar || currentUser.avatar}
@@ -148,8 +150,11 @@ function Profile() {
           id="password"
           onChange={handleChange}
         />
-        <button className="font-bold bg-zinc-700 text-orange-400 rounded-lg p-3 uppercase hover:opacity-80 disabled:opacity-50">
-          Update
+        <button
+          disabled={loading}
+          className="font-bold bg-zinc-700 text-orange-400 rounded-lg p-3 uppercase hover:opacity-80 disabled:opacity-50"
+        >
+          {loading ? "Loading" : "Update"}
         </button>
       </form>
       <div className="mt-2 flex items-center justify-between">
@@ -158,6 +163,11 @@ function Profile() {
         </span>
         <span className="text-sky-600 cursor-pointer font-bold">Sign Out</span>
       </div>
+
+      <p className="text-rose-600  mt-5">{error ? error : ""}</p>
+      <p className="text-green-700 mt-5">
+        {updateSuccess ? "User is updated successfully." : ""}
+      </p>
     </div>
   );
 }

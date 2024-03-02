@@ -2,9 +2,10 @@ import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export async function updateUserInfo(req, res, next) {
+  console.log(req.user, req.params);
   if (req.user.id !== req.params.id)
     return next(
-      errorHandler(401, "User not authenticated to update this account.")
+      errorHandler(401, "User not authenticated to update this account....")
     );
   try {
     const updatedUser = await User.findByIdAndUpdate(
