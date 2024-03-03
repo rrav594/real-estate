@@ -1,3 +1,4 @@
+import Listing from "../models/listing.model.js";
 import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 
@@ -41,5 +42,16 @@ export async function deleteUser(req, res, next) {
       .json({ status: "success", message: "User has been deleted..." });
   } catch (error) {
     next(error);
+  }
+}
+
+export async function getUserListing(req, res, next) {
+  if (req.user.id === req.params.id) {
+    try {
+      const listings = await Listing.find({ userRef: req.params.id });
+      res.status(200).json({ status: "sucess", listings });
+    } catch (error) {}
+  } else {
+    return next(errorHandler(401, "You can only view your own listings!"));
   }
 }
