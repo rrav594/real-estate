@@ -31,6 +31,8 @@ function Profile() {
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({ avatar: currentUser.photoURL });
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [showListingError, setShowListingError] = useState(false);
+  const [userListings, setUserListings] = useState([]);
 
   const dispatch = useDispatch();
 
@@ -80,17 +82,14 @@ function Profile() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    // console.log(currentUser);
+    console.log(currentUser);
     try {
       dispatch(updateUserStart());
-      const result = await fetch(
-        `http://localhost:8000/api/user/update/${currentUser._id}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
+      const result = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
       const data = await result.json();
 
       if (data.status == "fail") {
@@ -105,6 +104,7 @@ function Profile() {
 
   async function handleDeleteUser() {
     try {
+      console.log(currentUser);
       dispatch(deleteUserStart());
       const res = await fetch(`/api/user/delete/${currentUser._id}`, {
         method: "DELETE",
@@ -132,6 +132,23 @@ function Profile() {
       dispatch(signOutUserSuccess(data.message));
     } catch (error) {
       dispatch(signOutUserFailure(error.message));
+    }
+  }
+
+  async function handleShowListings() {
+    try {
+      setShowListingError(false);
+      const res = await fetch(`/api/user/listings/${currentUser._id}`);
+      const data = await res.json();
+      // console.log(data);
+      if (data.success == "fail") {
+        setShowListingError(true);
+        return;
+      }
+      setUserListings(data.listings);
+      console.log(userListings);
+    } catch (error) {
+      setShowListingError(true);
     }
   }
 
@@ -225,6 +242,45 @@ function Profile() {
       <p className="text-green-700 mt-5">
         {updateSuccess ? "User is updated successfully." : ""}
       </p>
+      <button onClick={handleShowListings} className="text-green-700 w-full">
+        Show Listings
+      </button>
+      <p className="text-red-700 mt-5">
+        {showListingError && "Error Showing Listing."}
+      </p>
+
+      {userListings && userListings.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <h1 className="text-center mt-7 text-2xl">Your Listings</h1>
+          {userListings.map((listing) => {
+            return (
+              <div
+                className="flex border rounded-lg p-5 justify-between items-center"
+                key={listing._id}
+              >
+                <Link to={`/listing/${listing._id}`}>
+                  <img
+                    className="h-16 w-16 object-contain"
+                    src={listing.imageUrls[0]}
+                    alt="listing cover"
+                  />
+                </Link>
+                <Link
+                  className="text-slate-700 font-semibold hover:underline truncate flex-1"
+                  to={`/listing/${listing._id}`}
+                >
+                  <p>{listing.name}</p>
+                </Link>
+
+                <div className="flex flex-col item-center">
+                  <button className="text-red-700 uppercase">Delete</button>
+                  <button className="text-green-700 uppercase">Edit</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

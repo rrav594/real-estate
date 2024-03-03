@@ -3,7 +3,7 @@ import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export async function updateUserInfo(req, res, next) {
-  console.log(req.user, req.params);
+  // console.log(req.user, req.params);
   if (req.user.id !== req.params.id)
     return next(
       errorHandler(401, "User not authenticated to update this account....")
@@ -22,7 +22,7 @@ export async function updateUserInfo(req, res, next) {
       { new: true }
     );
 
-    res.status(200).json({ status: "succeess", updatedUser });
+    res.status(200).json({ status: "success", updatedUser });
   } catch (error) {
     next(error);
   }
@@ -46,9 +46,11 @@ export async function deleteUser(req, res, next) {
 }
 
 export async function getUserListing(req, res, next) {
+  // console.log(req.user);
   if (req.user.id === req.params.id) {
     try {
       const listings = await Listing.find({ userRef: req.params.id });
+      // console.log(listings);
       res.status(200).json({ status: "sucess", listings });
     } catch (error) {}
   } else {
