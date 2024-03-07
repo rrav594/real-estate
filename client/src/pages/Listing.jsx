@@ -41,21 +41,23 @@ function Listing() {
         <p className="text-center my-7 text-2xl">Something went wrong.</p>
       )}
       {listing && !loading && !error && (
-        <>
+        <div>
           <Swiper navigation>
             {listing.imageUrls.map((url) => {
-              <SwiperSlide key={url}>
-                <div
-                  className="h-[500px]"
-                  style={{
-                    background: `url(${url}) center no-repeat`,
-                    backgroundSize: "cover",
-                  }}
-                ></div>
-              </SwiperSlide>;
+              return (
+                <SwiperSlide key={url}>
+                  <div
+                    className="h-[500px]"
+                    style={{
+                      background: `url(${url}) center no-repeat`,
+                      backgroundSize: "cover",
+                    }}
+                  ></div>
+                </SwiperSlide>
+              );
             })}
           </Swiper>
-        </>
+        </div>
       )}
     </main>
   );
