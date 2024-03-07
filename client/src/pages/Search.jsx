@@ -113,16 +113,18 @@ function Search() {
 
   const onShowMoreClick = async () => {
     const numberOfListings = listings.length;
+    console.log(listings);
     const startIndex = numberOfListings;
     const urlParams = new URLSearchParams(location.search);
     urlParams.set("startIndex", startIndex);
     const searchQuery = urlParams.toString();
     const res = await fetch(`/api/listing/get?${searchQuery}`);
     const data = await res.json();
+
     if (data.length < 9) {
       setShowMore(false);
     }
-    setListings([...listings, ...data]);
+    setListings([...listings, ...data.listings]);
   };
 
   return (
