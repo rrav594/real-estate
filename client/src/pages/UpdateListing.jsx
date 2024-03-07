@@ -5,14 +5,15 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function CreateListing() {
   const { currentUser } = useSelector((state) => state.user);
-  //   console.log(currentUser);
+  console.log(currentUser);
   const navigate = useNavigate();
+  const params = useParams();
   const [files, setFiles] = useState([]);
   const [formData, setFormData] = useState({
     imageUrls: [],
@@ -28,11 +29,22 @@ function CreateListing() {
     offer: false,
     furnished: false,
   });
-  console.log(formData);
+  //   console.log(formData);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchListing = async () => {
+      const listingId = params.listingId;
+      const res = await fetch(`/api/listing/get/${listingId}`);
+      const data = await res.json();
+
+      setFormData(data.listing);
+    };
+    fetchListing();
+  }, [params.listingId]);
 
   function handleImageSubmit(e) {
     e.preventDefault();
@@ -134,13 +146,13 @@ function CreateListing() {
         return setError("Discount price can not be higher then regular price.");
       setLoading(true);
       setError(false);
-      const res = await fetch("/api/listing/create", {
+      const listingId = params.listingId;
+      const res = await fetch(`/api/listing/update/${listingId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, userRef: currentUser._id }),
       });
       const data = await res.json();
-      console.log(data);
 
       if (data.status === "fail") {
         setError(data.message);
@@ -156,7 +168,7 @@ function CreateListing() {
   return (
     <main className="p-3 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">
-        Property Details...
+        Update Listing
       </h1>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-5">
         <div className="flex flex-col gap-4 flex-1 p-5">
@@ -360,7 +372,7 @@ function CreateListing() {
             disabled={loading || uploading}
             className="mt-10 font-bold bg-zinc-700 text-white rounded-lg p-3 uppercase hover:opacity-80 disabled:opacity-50"
           >
-            {loading ? "Creating your post...." : "Create Listing"}
+            {loading ? "Creating your post...." : "Update Listing"}
           </button>
           {error && <p className="text-red-700 text-xs">{error}</p>}
         </div>
