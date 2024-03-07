@@ -51,7 +51,7 @@ export async function getUserListing(req, res, next) {
     try {
       const listings = await Listing.find({ userRef: req.params.id });
       // console.log(listings);
-      res.status(200).json({ status: "sucess", listings });
+      res.status(200).json({ status: "success", listings });
     } catch (error) {}
   } else {
     return next(errorHandler(401, "You can only view your own listings!"));
