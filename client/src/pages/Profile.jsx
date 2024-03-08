@@ -81,7 +81,7 @@ function Profile() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    console.log(currentUser);
+    // console.log(currentUser);
     try {
       dispatch(updateUserStart());
       const result = await fetch(`/api/user/update/${currentUser._id}`, {
