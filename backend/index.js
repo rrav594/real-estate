@@ -8,7 +8,11 @@ import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.router.js";
 import listingRouter from "./routes/listing.router.js";
 
+import path from "path";
+
 dotenv.config({ path: "./config.env" });
+
+const __dirname = path.resolve();
 
 const app = express();
 app.use(express.json());
@@ -21,6 +25,11 @@ app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 
 app.use("/api/listing", listingRouter);
+
+app.use(express.static(path.join(__dirname, "../client/dist")));
+appendFile.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client", "dist", "index.html"));
+});
 
 // error handler middleware
 app.use((err, req, res, next) => {
